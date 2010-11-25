@@ -19,11 +19,10 @@
       $(document).ready(function() {
         $("#file_assets  .editable-container").hydraTextField();
       });
-    
-%h2 File Assets
 
 %table#file_assets.multipleEdit
   %col{:width=>"10%"}/
+  %col{:width=>"25%"}/
   %col{:width=>"25%"}/
   %col{:width=>"30%"}/  
   %col{:width=>"8%"}/
@@ -33,6 +32,7 @@
   %tr
     %th Primary
     %th File
+    %th Type
     %th Description
     %th Size
     %th Uploaded

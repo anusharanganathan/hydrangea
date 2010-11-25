@@ -18,7 +18,7 @@ class FileAssetsController < ApplicationController
     if !params[:container_id].nil?
       @response, @document = get_solr_response_for_doc_id(params[:container_id])
       @container =  ActiveFedora::Base.load_instance(params[:container_id])
-      @solr_result = @container.collection_members(:response_format=>:solr)
+      @solr_result = @container.file_objects(:response_format=>:solr)
     else
       # @solr_result = ActiveFedora::SolrService.instance.conn.query('has_model_field:info\:fedora/afmodel\:FileAsset', @search_params)
       @solr_result = FileAsset.find_by_solr(:all)
@@ -34,12 +34,23 @@ class FileAssetsController < ApplicationController
   def create
     @file_asset = create_and_save_file_asset_from_params
     apply_depositor_metadata(@file_asset)
-    
+        
     if !params[:container_id].nil?
       @container =  ActiveFedora::Base.load_instance(params[:container_id])
       @container.file_objects_append(@file_asset)
       @container.save
     end
+    
+    ## FOR CAPTURING ANY FILE METADATA  
+    unless params[:asset].nil?
+      updater_method_args = prep_updater_method_args(params)
+      logger.debug("attributes submitted: #{updater_method_args.inspect}")
+      result = @file_asset.update_indexed_attributes(updater_method_args[:params], updater_method_args[:opts])
+      @file_asset.save
+    end
+    ##
+    
+    logger.debug "Created #{@file_asset.pid}."
     render :nothing => true
   end
   

@@ -1,4 +1,11 @@
 - if current_user 
+
+  - if current_user.can_be_superuser?
+    - if current_user.is_being_superuser?(session)
+      = link_to "Stop being superuser", superuser_path
+    - else
+      = link_to "Become superuser", superuser_path
+    |
   = link_to "Log Out", logout_path 
   [
   = link_to current_user.login, user_path 
@@ -22,3 +29,5 @@
     %ul#create-asset-menu
       %li{:onclick => "javascript:createAssetNavigateTo(this, '#{url_for(:action => "new", :controller => "assets", :content_type => "hydrangea_article")}');"} Add an article
       %li{:onclick => "javascript:createAssetNavigateTo(this, '#{url_for(:action => "new", :controller => "assets", :content_type => "hydrangea_dataset")}');"} Add a dataset
+      %li{:onclick => "javascript:createAssetNavigateTo(this, '#{url_for(:action => "new", :controller => "assets", :content_type => "generic_image")}');"} Add an image
+      %li{:onclick => "javascript:createAssetNavigateTo(this, '#{url_for(:action => "new", :controller => "assets", :content_type => "generic_content")}');"} Add generic content

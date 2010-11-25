@@ -1,6 +1,6 @@
 module Hydra
   class ModsDataset < ActiveFedora::NokogiriDatastream
-
+    include Hydra::CommonModsIndexMethods
     set_terminology do |t|
       t.root(:path=>"mods", :xmlns=>"http://www.loc.gov/mods/v3", :schema=>"http://www.loc.gov/standards/mods/v3/mods-3-2.xsd")
 
@@ -45,17 +45,13 @@ module Hydra
       
       # Most of these are forcing non-bibliographic information into mods by using the note field pretty freely
       t.note
-      t.completeness(:ref=>:note, :attributes=>{:type=>"completeness"})
-      t.interval(:ref=>:note, :attributes=>{:type=>"interval"})
-      t.data_type(:ref=>:note, :attributes=>{:type=>"datatype"})
-      t.timespan_start(:ref=>:note, :attributes=>{:type=>"timespan-start"})
-      t.timespan_end(:ref=>:note, :attributes=>{:type=>"timespan-end"})
-      t.location(:ref=>:note, :attributes=>{:type=>"location"})
-      t.grant_number(:ref=>:note, :attributes=>{:type=>"grant"})
-      t.data_quality(:ref=>:note, :attributes=>{:type=>"data quality"})
-      t.contact_name(:ref=>:note, :attributes=>{:type=>"contact-name"})
-      t.contact_email(:ref=>:note, :attributes=>{:type=>"contact-email"})
-    end   
+      t.gps(:index_as=>[:facetable],:path=>"note",:attributes=>{:type=>"location"})
+      t.timespan_start(:path=>"note",:attributes=>{:type=>"timespan-start"})
+      t.timespan_end(:path=>"note",:attributes=>{:type=>"timespan-end"})
+      t.region(:index_as=>[:facetable],:path=>"note",:attributes=>{:type=>"region"})
+      t.site(:index_as=>[:facetable],:path=>"note",:attributes=>{:type=>"site"})
+      t.ecosystem(:index_as=>[:facetable],:path=>"note",:attributes=>{:type=>"ecosystem"})
+      end   
 
     # It would be nice if we could declare properties with refined info like this
     # accessor :grant_agency,  :relative_xpath=>'oxns:mods/oxns:name[contains(oxns:role/oxns:roleTerm, "Funder")]'
@@ -129,6 +125,13 @@ module Hydra
         "rtm" => "Research team member"
         }
     end
+
+    def self.completed_choices
+      ["Time Series",
+        "Snapshot / Sample"
+      ]
+    end
+
     
     def self.interval_choices
       ["Monthly",
@@ -142,5 +145,15 @@ module Hydra
     def self.data_type_choices
       ["transect","observation","data logging","remote sensing"]
     end
-end
+    
+    def self.valid_child_types
+      ["data", "supporting file", "profile", "lorem ipsum", "dolor"]
+    end
+    def to_solr(solr_doc=Solr::Document.new)
+      super(solr_doc)
+      extract_person_full_names.each {|pfn| solr_doc << pfn }
+      solr_doc << {:object_type_facet => "Dataset"}
+      solr_doc
+    end
+  end
 end

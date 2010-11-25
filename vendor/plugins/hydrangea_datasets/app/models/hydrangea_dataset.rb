@@ -17,4 +17,8 @@ class HydrangeaDataset < ActiveFedora::Base
     m.field 'collection', :string
     m.field 'depositor', :string
   end
+  
+  # A place to put extra extra metadata values
+  has_metadata :name => "hydraDataset", :type => HydraDatasetDs
+  
 end
