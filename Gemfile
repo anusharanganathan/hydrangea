@@ -28,12 +28,8 @@ gem 'RedCloth'
 gem 'rsolr'
 gem 'rsolr-ext'
 gem 'solr-ruby'
-<<<<<<< HEAD
-gem 'solrizer', '>=0.2.0'
-=======
 gem 'solrizer', '>=0.3.1'
 gem 'solrizer-fedora'
->>>>>>> projecthydra/master
 gem 'sqlite3-ruby'
 gem 'term-ansicolor'
 gem 'trollop'

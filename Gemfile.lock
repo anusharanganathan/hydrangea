@@ -143,12 +143,8 @@ DEPENDENCIES
   ruby-debug
   ruby-debug-base
   solr-ruby
-<<<<<<< HEAD
-  solrizer (>= 0.2.0)
-=======
   solrizer (>= 0.3.1)
   solrizer-fedora
->>>>>>> projecthydra/master
   sqlite3-ruby
   term-ansicolor
   trollop
