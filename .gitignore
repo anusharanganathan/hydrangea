@@ -7,7 +7,7 @@ nohup.out
 *.swp
 
 vendor/plugins/haml/init.rb
-
+vendor/plugins/blacklight/.git
 log/*
 coverage.data
 coverage/*
@@ -21,6 +21,7 @@ tmp/performance
 rerun.txt
 
 db/schema.rb
+db/*.sqlite3-journal
 
 .project
 .buildpath
@@ -28,3 +29,5 @@ db/schema.rb
 .idea
 
 /.bundle
+/.yardoc
+/doc

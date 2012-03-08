@@ -16,13 +16,20 @@ class FileAssetsController < ApplicationController
       layout = false
     end
     if !params[:container_id].nil?
-      @response, @document = get_solr_response_for_doc_id(params[:container_id])
+      container_uri = "info:fedora/#{params[:container_id]}"
+      escaped_uri = container_uri.gsub(/(:)/, '\\:')
+      extra_controller_params =  {:q=>"is_part_of_s:#{escaped_uri}"}
+      @response, @document_list = get_search_results( extra_controller_params )
+      
+      # Including this line so permissions tests can be run against the container
+      @container_response, @document = get_solr_response_for_doc_id(params[:container_id])
+      
+      # Including these lines for backwards compatibility (until we can use Rails3 callbacks)
       @container =  ActiveFedora::Base.load_instance(params[:container_id])
       @solr_result = @container.file_objects(:response_format=>:solr)
     else
       # @solr_result = ActiveFedora::SolrService.instance.conn.query('has_model_field:info\:fedora/afmodel\:FileAsset', @search_params)
       @solr_result = FileAsset.find_by_solr(:all)
-      puts @solr_result.inspect
     end
     render :action=>params[:action], :layout=>layout
   end
@@ -41,7 +48,7 @@ class FileAssetsController < ApplicationController
       @container.save
     end
     
-    ## FOR CAPTURING ANY FILE METADATA  
+    ## FOR CAPTURING ANY FILE METADATA // THERE'S PROBABY A BETTER PLACE FOR THIS. 
     unless params[:asset].nil?
       updater_method_args = prep_updater_method_args(params)
       logger.debug("attributes submitted: #{updater_method_args.inspect}")
@@ -98,4 +105,5 @@ class FileAssetsController < ApplicationController
       end
     end
   end
+  
 end

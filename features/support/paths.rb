@@ -33,10 +33,15 @@ module NavigationHelpers
       catalog_path($1)
     when /the file list page for (.*)$/i
       asset_file_assets_path($1)
+    when /the deletable file list page for (.*)/i
+      asset_file_assets_path($1, :deletable=>"true",:layout=>"false")
     when /the file asset (.*) with (.*) as its container$/i
       asset_file_asset_path($2, $1)
     when /the file asset (.*)$/i
       file_asset_path($1)
+    
+    when /new (.*) page$/i
+      new_asset_path(:content_type => $1)
       
     when /the (\d+)(?:st|nd|rd|th) (person|organization|conference) entry in (.*)$/i
       # contributor_id = "#{$2}_#{$1.to_i-1}"

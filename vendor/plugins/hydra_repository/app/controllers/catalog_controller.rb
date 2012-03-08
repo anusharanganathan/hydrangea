@@ -1,11 +1,11 @@
 require 'mediashelf/active_fedora_helper'
 class CatalogController
   
-  #include Blacklight::CatalogHelper
+  include Blacklight::CatalogHelper
   include Hydra::RepositoryController
   include Hydra::AccessControlsEnforcement
   before_filter :require_solr, :require_fedora, :only=>[:show, :edit, :index]
-  
+    
   def edit
     af_base = ActiveFedora::Base.load_instance(params[:id])
     the_model = ActiveFedora::ContentModel.known_models_for( af_base ).first
@@ -19,6 +19,13 @@ class CatalogController
     show_without_customizations
     enforce_edit_permissions
   end
+
+# displays values and pagination links for a single facet field
+  def facet
+    # adding the following for facet_pagination with Lucene queries to avoide NPE
+    params[:qt] = "dismax"
+    @pagination = get_facet_pagination(params[:id], params)
+  end
   
   # get search results from the solr index
   def index
@@ -27,8 +34,11 @@ class CatalogController
     #if current_user.nil?
     #  enforce_search_permissions
     #end
-
     (@response, @document_list) = get_search_results( @extra_controller_params.merge!(:q=>build_lucene_query(params[:q])) )
+    logger.debug("LUCENE QUERY: #{build_lucene_query(params[:q])}")
+    logger.debug("FOUND: #{@document_list.length}")
+    logger.debug("RESPONSE: #{@response.inspect}")
+    logger.debug("DOCUMENT: #{@document_list.inspect}")
     @filters = params[:f] || []
     respond_to do |format|
       format.html { save_current_search_params }
@@ -102,6 +112,10 @@ class CatalogController
     [:q, :qt, :search_field, :f, :per_page, :page, :sort, :view].each do |pname|
       params[pname].blank? ? session[:search].delete(pname) : session[:search][pname] = params[pname]
     end
+  end
+  
+  def setup_next_document
+    @next_document = (session[:search][:counter] && session[:search][:counter].to_i > 1) ? setup_document_by_counter(session[:search][:counter].to_i + 1) : nil
   end
 
 end
